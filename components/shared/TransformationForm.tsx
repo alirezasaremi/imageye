@@ -3,6 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,9 +22,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { defaultValues } from "@/constants";
+import {
+  aspectRatioOptions,
+  defaultValues,
+  transformationTypes,
+} from "@/constants";
+import { CustomField } from "./CustomField";
+import { useState } from "react";
+import { AspectRatioKey } from "@/lib/utils";
 
-const formSchema = z.object({
+export const formSchema = z.object({
   title: z.string(),
   aspectRatio: z.string().optional(),
   color: z.string().optional(),
@@ -27,7 +42,16 @@ const formSchema = z.object({
 const TransformationForm = ({
   action,
   data = null,
+  userId,
+  type,
+  creditBalance,
 }: TransformationFormProps) => {
+  const transformationType = transformationTypes[type];
+
+  const [image, setImage] = useState(data);
+  const [newTransformation, setNewTransformation] =
+    useState<Transformations | null>(null);
+
   const initialValues =
     data && action === "Update"
       ? {
@@ -44,35 +68,55 @@ const TransformationForm = ({
     defaultValues: initialValues,
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log(values);
-  }
+  };
 
-  return <div>Transformation Form</div>
+  const onSelectFielHandler = (
+    value: string,
+    onChangeField: (value: string) => void
+  ) => {};
 
-//   return (
-//     <Form {...form}>
-//       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-//         <FormField
-//           control={form.control}
-//           name="username"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Username</FormLabel>
-//               <FormControl>
-//                 <Input placeholder="shadcn" {...field} />
-//               </FormControl>
-//               <FormDescription>
-//                 This is your public display name.
-//               </FormDescription>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-//         <Button type="submit">Submit</Button>
-//       </form>
-//     </Form>
-//   );
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <CustomField
+          control={form.control}
+          name="title"
+          formLabel="Image Title"
+          className="w-full"
+          render={({ field }) => <Input {...field} className="input-field" />}
+        />
+        {type === "fill" && (
+          <CustomField
+            control={form.control}
+            name="aspectRatio"
+            formLabel="Aspect Ratio"
+            className="w-full"
+            render={({ field }) => (
+              <Select
+                onValueChange={(value) => {
+                  onSelectFielHandler(value, field.onChange);
+                }}
+              >
+                <SelectTrigger className="select-field">
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(aspectRatioOptions).map((key) => (
+                    <SelectItem key={key} value={key}>
+                      {aspectRatioOptions[key as AspectRatioKey].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        )}
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  );
 };
 
 export default TransformationForm;
