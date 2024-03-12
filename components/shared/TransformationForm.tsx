@@ -30,13 +30,14 @@ import {
 import { CustomField } from "./CustomField";
 import { startTransition, useState } from "react";
 import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils";
+import MediaUploader from "./MediaUploader";
 
 export const formSchema = z.object({
   title: z.string(),
   aspectRatio: z.string().optional(),
   color: z.string().optional(),
   prompt: z.string().optional(),
-  publicid: z.string(),
+  publicId: z.string(),
 });
 
 const TransformationForm = ({
@@ -118,10 +119,10 @@ const TransformationForm = ({
     setTransformationConfig(
       deepMergeObjects(newTransformation, transformationConfig)
     );
-    setNewTransformation(null); 
+    setNewTransformation(null);
 
     // startTransition( async () => {
-      
+
     // })
   };
 
@@ -210,6 +211,23 @@ const TransformationForm = ({
             )}
           </div>
         )}
+
+        <div className="media-uploader-field">
+          <CustomField
+            control={form.control}
+            name="publicId"
+            className="flex soe-full flex-col"
+            render={({ field }) => (
+              <MediaUploader
+                onValueChange={field.onCHange}
+                setImage={setImage}
+                publicId={field.value}
+                image={image}
+                type={type}
+              />
+            )}
+          />
+        </div>
 
         <div className="flex flex-col gap-4">
           <Button
